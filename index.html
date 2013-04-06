@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Pretext</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <script src="js/modernizr.js"></script>
+    <script src="js/console.js"></script>
+    <script src="js/frame.js"></script>
+    <script>
+        var boot = [
+            // type handling
+            'js/underscore.js', //'js/lodash.js',
+            //'js/underscore.string.js',
+            'js/typecast.js',
+            
+            // dom handling
+            'js/jquery.js',
+            //'js/jquery.color.js',
+            //'js/jquery.easing.js',
+            'js/jquery.scrollTo.js',
+            //'js/jquery.hammer.js',
+            'js/laconic.js',
+            //'js/jquery.tmpl.js',
+            //'js/dust.js',
+
+            // modeling
+            //'js/backbone.js',
+
+            // media handling
+            //'js/moment.js',
+            //'js/d3.js',
+            //'js/three.js'  
+        ];
+        boot.forEach(function(lib){
+            Frame(lib);
+        });
+        Frame(function(done){
+            var $body = $('body');
+            $body.append($.el.div({
+                'style': 'margin-bottom:35px;',
+                'class':'container full', 
+                'id': 'output'
+            }));
+
+            var $output = $('#output');
+            $body.append($.el.input({'class':'w1 fixed bottom'}));
+
+            var $input = $('input');
+            $body.keypress(function (e) {
+                if (e.which == 13 && $input.val() !== '') {
+                    var value = pretext($input.val());
+                    $output.append($.el.div(value));
+                    $input.val('');
+                    $body.scrollTo('max');
+                }
+            });
+            $input.focus();
+            done();
+        });
+        Frame.debug = 3;
+        Frame.start();
+
+        var pretext = function(input){
+
+            // window
+            if (Type.fn.is(window[input])) {
+                return window[input].toString();
+            }
+            if (Type.obj.is(window[input])) {
+                return JSON.stringify(window[input]);
+            }
+
+            return input;
+        };
+
+    </script>
+</head>
+<body>
+
+
+</body>
+</html>
