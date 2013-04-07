@@ -19,6 +19,7 @@
     <script>
         var boot = [
             // type handling
+            'js/cycle.js', // decycle for JSON
             'js/underscore.js', //'js/lodash.js',
             //'js/underscore.string.js',
             'js/typecast.js',
@@ -44,25 +45,32 @@
         boot.forEach(function(lib){
             Frame(lib);
         });
+
+        var $body, $input, $output, history = [];
+
         Frame(function(done){
-            var $body = $('body');
+            $body = $('body');
             $body.append($.el.div({
                 'style': 'margin-bottom:35px;',
                 'class':'container full', 
                 'id': 'output'
             }));
 
-            var $output = $('#output');
+            $output = $('#output');
             $body.append($.el.input({'class':'w1 fixed bottom'}));
 
-            var $input = $('input');
+            $input = $('input');
             $body.keypress(function (e) {
                 if (e.which == 13 && $input.val() !== '') {
                     var value = pretext($input.val());
+                    console.log(value);
                     $output.append($.el.div(value));
+                    history.push(value);
                     $input.val('');
                     $body.scrollTo('max');
                 }
+                // if up arrow
+                    // $input.val(history.pop());
             });
             $input.focus();
             done();
@@ -72,15 +80,57 @@
 
         var pretext = function(input){
 
-            // window
-            if (Type.fn.is(window[input])) {
-                return window[input].toString();
-            }
-            if (Type.obj.is(window[input])) {
-                return JSON.stringify(window[input]);
+            // having fun
+            if (Type.str.is(input)) {
+                switch(input){
+                    case 'apple': return 'Apples are fun!'; break;
+                    case 'foo': return 'bar'; break;
+                    case 'special': return 'very special'; break;
+                }
             }
 
-            return input;
+            // Typecast
+            if (Type.types.is(input)) {
+                return String(JSON.stringify(Type[input.toLowerCase()].a()));
+            }
+            // html
+            if (Type.fn.is($.el[input])) {
+                return $('<div />').append($.el[input]()).html();
+            }
+            // jquery
+            if (Type.fn.is($output[input])) {
+                return $output[input].toString();
+                //return $output[input].toString();
+            }
+            if (Type.fn.is($[input])) {
+                return $[input].toString();
+                //return $[input].toString();
+            }
+            // window -> window[input]
+            if (Type.fn.is(window[input])) {
+                return pretext(window[input].toString());
+            }
+            if (Type.obj.is(window[input])) {
+                return pretext(window[input]);
+            }
+
+            // jquery -> html
+            if(Type.fn.is(input.html) || Type.fn.is($.el[input])) 
+                return $('<div />').append(input).html();
+
+            // collections -> json
+            if (Type.collection.is(input)) {
+                try {
+                    return JSON.stringify(input);
+                } catch (e) {
+                    try {
+                        return JSON.stringify(JSON.decycle(input))                            
+                    } catch (e) {}
+                }
+            }
+
+            // * -> string
+            return String(input);
         };
 
     </script>
